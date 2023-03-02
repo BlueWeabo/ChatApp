@@ -14,9 +14,12 @@ namespace ChatServer
 
         public ICollection<User> Members { get; set; }
 
+        public ICollection<Message> Messages { get; set; }
+
         public Group()
         {
             Members = new List<User>();
+            Messages = new List<Message>();
         }
     }
 }
