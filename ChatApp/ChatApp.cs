@@ -76,7 +76,7 @@ namespace ChatApp
 
         private void ChatApp_FormClosing(object sender, FormClosingEventArgs e)
         {
-            client.Shutdown(SocketShutdown.Send);
+            client.Disconnect(false);
         }
     }
 }
