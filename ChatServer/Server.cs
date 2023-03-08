@@ -26,10 +26,10 @@ class Server
                     string response = Encoding.UTF8.GetString(buffer, 0, received);
                     Console.WriteLine(
                         $"Socket server received message: \"{response}\"");
-
+                    
                     string ackMessage = "recieved";
                     byte[] echoBytes = Encoding.UTF8.GetBytes(ackMessage);
-                    await handler.SendAsync(echoBytes, 0);
+                    _ = await handler.SendAsync(echoBytes, 0);
                     Console.WriteLine(
                         $"Socket server sent acknowledgment: \"{ackMessage}\"");
                 }

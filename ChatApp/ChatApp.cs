@@ -64,18 +64,18 @@ namespace ChatApp
 
         private void ServerBackground_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.Result is object[])
+            if (e.Result is object[] result)
             {
-                object[] result = (object[])e.Result;
-                if (result.Length == 1 && result[0] is string)
+                if (result.Length == 1 && result[0] is string message)
                 {
-                    textBox2.Text = (string)result[0];
+                    textBox2.Text = message;
                 }
             }
         }
 
         private void ChatApp_FormClosing(object sender, FormClosingEventArgs e)
         {
+            ServerBackground.CancelAsync();
             client.Disconnect(false);
         }
     }
