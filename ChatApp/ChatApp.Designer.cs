@@ -39,7 +39,6 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.GroupMembersList = new System.Windows.Forms.Panel();
-            this.ServerBackground = new System.ComponentModel.BackgroundWorker();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -186,11 +185,6 @@
             this.GroupMembersList.Size = new System.Drawing.Size(144, 410);
             this.GroupMembersList.TabIndex = 3;
             // 
-            // ServerBackground
-            // 
-            this.ServerBackground.DoWork += new System.ComponentModel.DoWorkEventHandler(this.ServerBackground_DoWork);
-            this.ServerBackground.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.ServerBackground_RunWorkerCompleted);
-            // 
             // ChatApp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -223,7 +217,6 @@
         private Panel GroupsList;
         private Panel panel1;
         private Panel GroupMembersList;
-        private System.ComponentModel.BackgroundWorker ServerBackground;
         private TextBox textBox2;
         private TextBox textBox1;
         private Button SendMessage;
