@@ -5,6 +5,9 @@ namespace ChatApp
 {
     internal static class App
     {
+        public static Socket client;
+        public static IPEndPoint ipEndPoint;
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -14,20 +17,18 @@ namespace ChatApp
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+            ConnectToServer();
             //Application.Run(new LoginRegister());
             Application.Run(new ChatApp());
         }
 
-        public static string GetLocalIPAddress()
+        private async static void ConnectToServer()
         {
-            string localIP;
-            using (Socket socket = new(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-            {
-                socket.Connect("8.8.8.8", 65530);
-                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
-                localIP = endPoint.Address.ToString();
-            }
-            return localIP;
+            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            ipEndPoint = new(ipAddress, 11_000);
+            client = new(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            await client.ConnectAsync(ipEndPoint);
         }
     }
 }

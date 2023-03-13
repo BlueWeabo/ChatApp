@@ -17,30 +17,34 @@ class Server
             listener.Listen(100);
             while (true)
             {
-                try
-                {
-                    Socket handler = await listener.AcceptAsync();
-                    while (handler.Connected)
-                    {
-                        // Receive message.
-                        byte[] buffer = new byte[1_024];
-                        int received = await handler.ReceiveAsync(buffer, SocketFlags.None);
-                        string response = Encoding.UTF8.GetString(buffer, 0, received);
-                        Console.WriteLine(
-                            $"Socket server received message: \"{response}\"");
-
-                        string ackMessage = "recieved";
-                        byte[] echoBytes = Encoding.UTF8.GetBytes(ackMessage);
-                        _ = await handler.SendAsync(echoBytes, 0);
-                        Console.WriteLine(
-                            $"Socket server sent acknowledgment: \"{ackMessage}\"");
-                    }
-                } catch (Exception e)
-                {
-                    //Ignore Server needs to continue to run
-                }
+                newConnected = await listener.AcceptAsync();
+                _ = ThreadPool.QueueUserWorkItem(new WaitCallback(Client));
                 
             }
+        }
+    }
+    static Socket newConnected;
+    static async void Client(object? state)
+    {
+        Socket handler = newConnected;
+        while (handler.Connected)
+        {
+            // Receive message.
+            byte[] buffer = new byte[1_024];
+            int received = await handler.ReceiveAsync(buffer, SocketFlags.None);
+            string response = Encoding.UTF8.GetString(buffer, 0, received);
+            Console.WriteLine(
+                $"Socket server received message: \"{response}\"");
+            if (response == null || response == "")
+            {
+                Console.WriteLine("Closing");
+                return;
+            }
+            string ackMessage = "recieved";
+            byte[] echoBytes = Encoding.UTF8.GetBytes(ackMessage);
+            _ = await handler.SendAsync(echoBytes, 0);
+            Console.WriteLine(
+                $"Socket server sent acknowledgment: \"{ackMessage}\"");
         }
     }
 }

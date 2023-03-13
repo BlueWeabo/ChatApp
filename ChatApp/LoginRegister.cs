@@ -15,6 +15,9 @@ namespace ChatApp
         public LoginRegister()
         {
             InitializeComponent();
+            LoginRegisterSplit.Panel1.Show();
+            LoginRegisterSplit.SplitterDistance = Width;
+            LoginRegisterSplit.Panel2.Hide();
         }
 
         private void GoToLoginLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
