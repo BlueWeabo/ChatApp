@@ -2,10 +2,12 @@
 using System.Net.Sockets;
 using System.Text;
 using ChatServer;
+using DataClasses;
 
 namespace MyProject;
 class Server
 {
+    private static ServerContext context = new ServerContext();
     static async Task Main()
     {
         IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(Dns.GetHostName());
@@ -33,18 +35,117 @@ class Server
             byte[] buffer = new byte[1_024];
             int received = await handler.ReceiveAsync(buffer, SocketFlags.None);
             string response = Encoding.UTF8.GetString(buffer, 0, received);
-            Console.WriteLine(
-                $"Socket server received message: \"{response}\"");
+            Console.WriteLine($"Socket server received message: \"{response}\"");
             if (response == null || response == "")
             {
                 Console.WriteLine("Closing");
                 return;
             }
+            processPacket(response, handler);
             string ackMessage = "recieved";
             byte[] echoBytes = Encoding.UTF8.GetBytes(ackMessage);
             _ = await handler.SendAsync(echoBytes, 0);
             Console.WriteLine(
                 $"Socket server sent acknowledgment: \"{ackMessage}\"");
         }
+    }
+
+    static void processPacket(string message, Socket handler)
+    {
+        string messageType = message.Split(':')[0];
+        message = message.Split(':')[1];
+        switch (messageType)
+        {
+            case "Logging":
+                processLogging(message, handler);
+                break;
+            case "Register":
+                processRegister(message, handler);
+                break;
+            case "Message":
+                processMessage(message);
+                break;
+            case "Group":
+                processGroup(message);
+                break;
+            default:
+                Console.WriteLine("Unknown message type");
+                SendIgnored(handler);
+                break;
+        }
+    } 
+
+    static async void processLogging(string message, Socket handler)
+    {
+        User? user = PacketHandler.DecodeLoginPacket(message);
+        if (user == null)
+        {
+            SendIgnored(handler);
+            return;
+        }
+
+        User? userReturned = context.Users.Find(user.Username);
+        if (userReturned == null)
+        {
+            SendIgnored(handler);
+            return;
+        }
+
+        if (!user.Password.Equals(userReturned.Password))
+        {
+            SendIgnored(handler);
+            return;
+        }
+
+        while (true)
+        {
+            string information = PacketHandler.EncodeLoginPacket(userReturned);
+            byte[] echoBytes = Encoding.UTF8.GetBytes(information);
+            _ = await handler.SendAsync(echoBytes, 0);
+        }
+    }
+
+    static async void processRegister(string message, Socket handler)
+    {
+        User? user = PacketHandler.DecodeLoginPacket(message);
+        if (user == null)
+        {
+            SendIgnored(handler);
+            return;
+        }
+
+        User? userReturned = context.Users.Find(user.Username);
+        if (userReturned != null)
+        {
+            SendIgnored(handler);
+            return;
+        }
+
+        context.Users.Add(user);
+        _ = await context.SaveChangesAsync();
+        userReturned = context.Users.Find(user.Username);
+
+        while (true)
+        {
+            string information = PacketHandler.EncodeLoginPacket(userReturned);
+            byte[] echoBytes = Encoding.UTF8.GetBytes(information);
+            _ = await handler.SendAsync(echoBytes, 0);
+        }
+    }
+
+    static async void processGroup(string message)
+    {
+
+    }
+
+    static async void processMessage(string message)
+    {
+
+    }
+
+    static async void SendIgnored(Socket handler)
+    {
+        byte[] echoBytes = Encoding.UTF8.GetBytes("");
+        _ = await handler.SendAsync(echoBytes, 0);
     }
 }

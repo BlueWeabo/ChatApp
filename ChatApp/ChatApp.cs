@@ -2,16 +2,20 @@
 using System.Net;
 using System.Text;
 using System.ComponentModel;
+using DataClasses;
 
 namespace ChatApp
 {
     
     public partial class ChatApp : Form
     {
+        User user;
         
-        public ChatApp()
+        public ChatApp(User user)
         {
             InitializeComponent();
+
+            this.user = user;
         }
 
         private async void SendMessage_Click(object sender, EventArgs e)

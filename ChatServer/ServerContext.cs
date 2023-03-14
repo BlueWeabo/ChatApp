@@ -17,5 +17,12 @@ namespace ChatServer
         public DbSet<Group> Groups { get; set; }
 
         public DbSet<Message> Messages { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder builder)
+        {
+            builder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+        }
     }
 }

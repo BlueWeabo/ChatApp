@@ -48,5 +48,6 @@ namespace DataClasses
         {
             return JsonConvert.DeserializeObject<Message>(jsonMessage);
         }
+
     }
 }

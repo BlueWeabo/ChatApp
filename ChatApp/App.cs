@@ -18,8 +18,8 @@ namespace ChatApp
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
             ConnectToServer();
-            //Application.Run(new LoginRegister());
-            Application.Run(new ChatApp());
+            Application.Run(new LoginRegister());
+            //Application.Run(new ChatApp());
         }
 
         private async static void ConnectToServer()
