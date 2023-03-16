@@ -53,7 +53,8 @@ class Server
     static void processPacket(string message, Socket handler)
     {
         string messageType = message.Split(':')[0];
-        message = message.Split(':')[1];
+        message = message[(message.IndexOf(':') + 1)..];
+        Console.WriteLine(message);
         switch (messageType)
         {
             case "Logging":
@@ -107,7 +108,7 @@ class Server
 
     static async void processRegister(string message, Socket handler)
     {
-        User? user = PacketHandler.DecodeLoginPacket(message);
+        User? user = PacketHandler.DecodeRegisterPacket(message);
         if (user == null)
         {
             SendIgnored(handler);
@@ -127,7 +128,7 @@ class Server
 
         while (true)
         {
-            string information = PacketHandler.EncodeLoginPacket(userReturned);
+            string information = PacketHandler.EncodeRegisterPacket(userReturned);
             byte[] echoBytes = Encoding.UTF8.GetBytes(information);
             _ = await handler.SendAsync(echoBytes, 0);
         }

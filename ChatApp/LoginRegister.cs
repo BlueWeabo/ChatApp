@@ -60,7 +60,7 @@ namespace ChatApp
                     return;
                 }
 
-                User? returned = PacketHandler.DecodeRegisterPacket(response.Split(':')[1]);
+                User? returned = PacketHandler.DecodeRegisterPacket(response[(response.IndexOf(':') + 1)..]);
                 new ChatApp(returned).Show();
                 Close();
                 break;
@@ -91,7 +91,7 @@ namespace ChatApp
                     return;
                 }
 
-                User? returned = PacketHandler.DecodeLoginPacket(response.Split(':')[1]);
+                User? returned = PacketHandler.DecodeLoginPacket(response[(response.IndexOf(':') + 1)..]);
                 new ChatApp(returned).Show();
                 Close();
                 break;
