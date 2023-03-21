@@ -29,6 +29,7 @@ namespace ChatServer
             builder.Entity<User>()
                 .HasIndex(u => u.Username)
                 .IsUnique();
+            
         }
     }
 }

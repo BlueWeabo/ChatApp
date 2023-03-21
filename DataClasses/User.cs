@@ -6,15 +6,24 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataClasses
 {
     public class User
     {
-
+        
         public int Id { get; set; }
+        [MaxLength(45)]
+        [Column("Username", TypeName = "varchar")]
+        [Index(IsUnique = true)]
         public string Username { get; set; }
+        [MaxLength(250)]
+        [Column("Password", TypeName = "varchar")]
         public string Password { get; set; }
+        [MaxLength(15)]
+        [Column("IpAddress", TypeName = "varchar")]
         public string IpAddress { get; set; }
 
         public ICollection<Group> Groups { get; set; }

@@ -30,14 +30,15 @@
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.AddFriendButton = new System.Windows.Forms.Button();
+            this.AddGroupButton = new System.Windows.Forms.Button();
             this.GroupsList = new System.Windows.Forms.Panel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.MessageList = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.SendMessage = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.messageToSend = new System.Windows.Forms.TextBox();
             this.GroupMembersList = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -46,7 +47,8 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -69,7 +71,7 @@
             // 
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.AddFriendButton, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.AddGroupButton, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.GroupsList, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
@@ -81,15 +83,16 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(128, 450);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
-            // AddFriendButton
+            // AddGroupButton
             // 
-            this.AddFriendButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.AddFriendButton.Location = new System.Drawing.Point(3, 3);
-            this.AddFriendButton.Name = "AddFriendButton";
-            this.AddFriendButton.Size = new System.Drawing.Size(122, 62);
-            this.AddFriendButton.TabIndex = 1;
-            this.AddFriendButton.Text = "Add Friend";
-            this.AddFriendButton.UseVisualStyleBackColor = true;
+            this.AddGroupButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.AddGroupButton.Location = new System.Drawing.Point(3, 3);
+            this.AddGroupButton.Name = "AddGroupButton";
+            this.AddGroupButton.Size = new System.Drawing.Size(122, 62);
+            this.AddGroupButton.TabIndex = 1;
+            this.AddGroupButton.Text = "Add Group";
+            this.AddGroupButton.UseVisualStyleBackColor = true;
+            this.AddGroupButton.Click += new System.EventHandler(this.AddGroupButton_Click);
             // 
             // GroupsList
             // 
@@ -126,7 +129,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.panel1);
+            this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel4);
             this.splitContainer1.Panel1MinSize = 0;
             // 
             // splitContainer1.Panel2
@@ -138,42 +141,65 @@
             this.splitContainer1.SplitterWidth = 1;
             this.splitContainer1.TabIndex = 0;
             // 
-            // panel1
+            // tableLayoutPanel4
             // 
-            this.panel1.AutoScroll = true;
-            this.panel1.Controls.Add(this.SendMessage);
-            this.panel1.Controls.Add(this.textBox2);
-            this.panel1.Controls.Add(this.textBox1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(527, 410);
-            this.panel1.TabIndex = 0;
+            this.tableLayoutPanel4.ColumnCount = 1;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Controls.Add(this.MessageList, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.tableLayoutPanel5, 0, 1);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 89.51219F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10.4878F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(527, 410);
+            this.tableLayoutPanel4.TabIndex = 0;
+            // 
+            // MessageList
+            // 
+            this.MessageList.AutoScroll = true;
+            this.MessageList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MessageList.Location = new System.Drawing.Point(0, 0);
+            this.MessageList.Margin = new System.Windows.Forms.Padding(0);
+            this.MessageList.Name = "MessageList";
+            this.MessageList.Size = new System.Drawing.Size(527, 367);
+            this.MessageList.TabIndex = 1;
+            // 
+            // tableLayoutPanel5
+            // 
+            this.tableLayoutPanel5.ColumnCount = 2;
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 78.31094F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 21.68906F));
+            this.tableLayoutPanel5.Controls.Add(this.SendMessage, 1, 0);
+            this.tableLayoutPanel5.Controls.Add(this.messageToSend, 0, 0);
+            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(0, 367);
+            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
+            this.tableLayoutPanel5.RowCount = 1;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(527, 43);
+            this.tableLayoutPanel5.TabIndex = 0;
             // 
             // SendMessage
             // 
-            this.SendMessage.Location = new System.Drawing.Point(154, 80);
+            this.SendMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SendMessage.Location = new System.Drawing.Point(415, 3);
             this.SendMessage.Name = "SendMessage";
-            this.SendMessage.Size = new System.Drawing.Size(75, 23);
+            this.SendMessage.Size = new System.Drawing.Size(109, 37);
             this.SendMessage.TabIndex = 1;
             this.SendMessage.Text = "Send";
             this.SendMessage.UseVisualStyleBackColor = true;
             this.SendMessage.Click += new System.EventHandler(this.SendMessage_Click);
             // 
-            // textBox2
+            // messageToSend
             // 
-            this.textBox2.Location = new System.Drawing.Point(37, 107);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(115, 23);
-            this.textBox2.TabIndex = 0;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(37, 51);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(115, 23);
-            this.textBox1.TabIndex = 0;
+            this.messageToSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.messageToSend.Location = new System.Drawing.Point(3, 10);
+            this.messageToSend.Name = "messageToSend";
+            this.messageToSend.Size = new System.Drawing.Size(406, 23);
+            this.messageToSend.TabIndex = 0;
             // 
             // GroupMembersList
             // 
@@ -201,8 +227,9 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel5.ResumeLayout(false);
+            this.tableLayoutPanel5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -213,12 +240,13 @@
         private TableLayoutPanel tableLayoutPanel2;
         private TableLayoutPanel tableLayoutPanel3;
         private SplitContainer splitContainer1;
-        private Button AddFriendButton;
+        private Button AddGroupButton;
         private Panel GroupsList;
-        private Panel panel1;
         private Panel GroupMembersList;
-        private TextBox textBox2;
-        private TextBox textBox1;
+        private TableLayoutPanel tableLayoutPanel4;
+        private Panel MessageList;
+        private TableLayoutPanel tableLayoutPanel5;
         private Button SendMessage;
+        private TextBox messageToSend;
     }
 }

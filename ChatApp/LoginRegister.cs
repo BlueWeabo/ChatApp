@@ -21,6 +21,7 @@ namespace ChatApp
             LoginRegisterSplit.Panel1.Show();
             LoginRegisterSplit.SplitterDistance = Width;
             LoginRegisterSplit.Panel2.Hide();
+            App.ConnectToServer();
         }
 
         private void GoToLoginLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -49,20 +50,19 @@ namespace ChatApp
                 byte[] messageBytes = Encoding.UTF8.GetBytes(PacketHandler.EncodeRegisterPacket(user));
                 _ = await App.client.SendAsync(messageBytes, SocketFlags.None);
 
-
-                // Receive ack.
                 byte[] buffer = new byte[1_024];
                 int received = await App.client.ReceiveAsync(buffer, SocketFlags.None);
                 string response = Encoding.UTF8.GetString(buffer, 0, received);
-                if (response == "")
+                if (response == null || response.Equals("no"))
                 {
                     MessageBox.Show("Usename Taken");
                     return;
                 }
 
                 User? returned = PacketHandler.DecodeRegisterPacket(response[(response.IndexOf(':') + 1)..]);
-                new ChatApp(returned).Show();
-                Close();
+                App.app = new ChatApp(returned);
+                App.app.Show();
+                Hide();
                 break;
             }
             
@@ -85,15 +85,16 @@ namespace ChatApp
                 byte[] buffer = new byte[1_024];
                 int received = await App.client.ReceiveAsync(buffer, SocketFlags.None);
                 string response = Encoding.UTF8.GetString(buffer, 0, received);
-                if (response == "")
+                if (response == null || response.Equals("no"))
                 {
                     MessageBox.Show("Wrong login cridentials");
                     return;
                 }
 
                 User? returned = PacketHandler.DecodeLoginPacket(response[(response.IndexOf(':') + 1)..]);
-                new ChatApp(returned).Show();
-                Close();
+                App.app = new ChatApp(returned);
+                App.app.Show();
+                Hide();
                 break;
             }
         }

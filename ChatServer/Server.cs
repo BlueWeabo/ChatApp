@@ -1,29 +1,34 @@
-﻿using System.Net;
+﻿using System.Data.Entity.Infrastructure;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using ChatServer;
 using DataClasses;
+using MySql.Data.MySqlClient;
 
 namespace MyProject;
 class Server
 {
     private static ServerContext context = new ServerContext();
     static async Task Main()
-    {
+   {
         IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(Dns.GetHostName());
         IPAddress ipAddress = ipHostInfo.AddressList[0];
         IPEndPoint ipEndPoint = new(ipAddress, 11_000);
-        using (Socket listener = new(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+        try
         {
-            listener.Bind(ipEndPoint);
-            listener.Listen(100);
-            while (true)
+            using (Socket listener = new(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
-                newConnected = await listener.AcceptAsync();
-                _ = ThreadPool.QueueUserWorkItem(new WaitCallback(Client));
-                
+                listener.Bind(ipEndPoint);
+                listener.Listen(100);
+                while (true)
+                {
+                    newConnected = await listener.AcceptAsync();
+                    _ = ThreadPool.QueueUserWorkItem(new WaitCallback(Client));
+
+                }
             }
-        }
+        } catch (Exception ignored) { }
     }
     static Socket newConnected;
     static async void Client(object? state)
@@ -35,18 +40,12 @@ class Server
             byte[] buffer = new byte[1_024];
             int received = await handler.ReceiveAsync(buffer, SocketFlags.None);
             string response = Encoding.UTF8.GetString(buffer, 0, received);
-            Console.WriteLine($"Socket server received message: \"{response}\"");
             if (response == null || response == "")
             {
                 Console.WriteLine("Closing");
                 return;
             }
             processPacket(response, handler);
-            string ackMessage = "recieved";
-            byte[] echoBytes = Encoding.UTF8.GetBytes(ackMessage);
-            _ = await handler.SendAsync(echoBytes, 0);
-            Console.WriteLine(
-                $"Socket server sent acknowledgment: \"{ackMessage}\"");
         }
     }
 
@@ -54,7 +53,6 @@ class Server
     {
         string messageType = message.Split(':')[0];
         message = message[(message.IndexOf(':') + 1)..];
-        Console.WriteLine(message);
         switch (messageType)
         {
             case "Logging":
@@ -81,11 +79,17 @@ class Server
         User? user = PacketHandler.DecodeLoginPacket(message);
         if (user == null)
         {
-            SendIgnored(handler);
+            
             return;
         }
 
-        User? userReturned = context.Users.Find(user.Username);
+        DbSqlQuery<User> userQuery = context.Users.SqlQuery("Select * from chatapp.users where Username = @username and Password = @password", new MySqlParameter("@username", user.Username), new MySqlParameter("@password", user.Password));
+        User? userReturned = null;
+        foreach (User usr in userQuery)
+        {
+            userReturned = usr;
+        }
+
         if (userReturned == null)
         {
             SendIgnored(handler);
@@ -103,6 +107,7 @@ class Server
             string information = PacketHandler.EncodeLoginPacket(userReturned);
             byte[] echoBytes = Encoding.UTF8.GetBytes(information);
             _ = await handler.SendAsync(echoBytes, 0);
+            break;
         }
     }
 
@@ -115,7 +120,13 @@ class Server
             return;
         }
 
-        User? userReturned = context.Users.Find(user.Username);
+        DbSqlQuery<User> userQuery = context.Users.SqlQuery("Select * from chatapp.users where Username = @username", new MySqlParameter("@username", user.Username));
+        User? userReturned = null;
+        foreach(User usr in userQuery)
+        {
+            userReturned = usr;
+        }
+        
         if (userReturned != null)
         {
             SendIgnored(handler);
@@ -124,13 +135,18 @@ class Server
 
         context.Users.Add(user);
         _ = await context.SaveChangesAsync();
-        userReturned = context.Users.Find(user.Username);
+        userQuery = context.Users.SqlQuery("Select * from chatapp.users where Username = @username", new MySqlParameter("@username", user.Username));
+        foreach (User usr in userQuery)
+        {
+            userReturned = usr;
+        }
 
         while (true)
         {
             string information = PacketHandler.EncodeRegisterPacket(userReturned);
             byte[] echoBytes = Encoding.UTF8.GetBytes(information);
             _ = await handler.SendAsync(echoBytes, 0);
+            break;
         }
     }
 
@@ -146,7 +162,7 @@ class Server
 
     static async void SendIgnored(Socket handler)
     {
-        byte[] echoBytes = Encoding.UTF8.GetBytes("");
+        byte[] echoBytes = Encoding.UTF8.GetBytes("no");
         _ = await handler.SendAsync(echoBytes, 0);
     }
 }
