@@ -86,11 +86,15 @@ namespace ChatApp
             Button btn = (Button)sender;
 
             selectedGroup = btn.GetGroup();
+            LoadGroupMessages();
         }
 
         private void LoadGroupMessages()
         {
-
+            if (selectedGroup == null)
+            {
+                return;
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ChatApp
             button.Text = group.Name;
         }
 
-        public static Group GetGroup(this Button button)
+        public static Group? GetGroup(this Button button)
         {
             return internalGroup;
         }
