@@ -32,7 +32,7 @@ namespace ChatApp
             GroupsList.Controls.Clear();
             for (int i = 0; i < user.Groups.Count; i++)
             {
-                Button button = new();
+                GroupButton button = new();
                 button.SetGroup(user.Groups.ElementAt(i));
                 button.Width = GroupsList.ClientSize.Width;
                 button.Height = 20;
@@ -67,23 +67,17 @@ namespace ChatApp
 
         private void AddGroupButton_Click(object sender, EventArgs e)
         {
-            if (!(sender is Button))
-            {
-                return;
-            }
-
-            Button btn = (Button)sender;
 
         }
 
         private void SelectGroup(object? sender, EventArgs? e)
         {
-            if (sender is not Button)
+            if (sender is not GroupButton)
             {
                 return;
             }
 
-            Button btn = (Button)sender;
+            GroupButton btn = (GroupButton)sender;
 
             selectedGroup = btn.GetGroup();
             LoadGroupMessages();

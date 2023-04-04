@@ -86,9 +86,10 @@
             // AddGroupButton
             // 
             this.AddGroupButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.AddGroupButton.Location = new System.Drawing.Point(3, 3);
+            this.AddGroupButton.Location = new System.Drawing.Point(0, 0);
+            this.AddGroupButton.Margin = new System.Windows.Forms.Padding(0);
             this.AddGroupButton.Name = "AddGroupButton";
-            this.AddGroupButton.Size = new System.Drawing.Size(122, 62);
+            this.AddGroupButton.Size = new System.Drawing.Size(128, 68);
             this.AddGroupButton.TabIndex = 1;
             this.AddGroupButton.Text = "Add Group";
             this.AddGroupButton.UseVisualStyleBackColor = true;
@@ -218,7 +219,7 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "ChatApp";
-            this.Text = "Form1";
+            this.Text = "Chat App";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ChatApp_FormClosing);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);

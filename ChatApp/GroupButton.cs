@@ -7,17 +7,17 @@ using DataClasses;
 
 namespace ChatApp
 {
-    public static class ButtonExtension
+    public class GroupButton : Button
     {
-        private static Group? internalGroup;
+        private Group? internalGroup;
 
-        public static void SetGroup(this Button button, Group group)
+        public void SetGroup(Group group)
         {
             internalGroup = group;
-            button.Text = group.Name;
+            Text = group.Name;
         }
 
-        public static Group? GetGroup(this Button button)
+        public Group? GetGroup()
         {
             return internalGroup;
         }
