@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using static DataClasses.Group;
+using static DataClasses.User;
 
 namespace DataClasses
 {
@@ -14,9 +16,19 @@ namespace DataClasses
             return "Logging:" + JsonConvert.SerializeObject(user);
         }
 
-        public static User? DecodeLoginPacket(string jsonUser)
+        public static string EncodeUserGetPacket(User user)
+        {
+            return "User:" + "Get:" + JsonConvert.SerializeObject(user);
+        }
+
+        public static User? DecodeUserPacket(string jsonUser)
         {
             return JsonConvert.DeserializeObject<User>(jsonUser);
+        }
+
+        public static string EncodeUserPacket(User user)
+        {
+            return JsonConvert.SerializeObject(user, new GroupInUserConverter());
         }
 
         public static string EncodeRegisterPacket(User user)
@@ -24,14 +36,14 @@ namespace DataClasses
             return "Register:" + JsonConvert.SerializeObject(user);
         }
 
-        public static User? DecodeRegisterPacket(string jsonUser)
-        {
-            return JsonConvert.DeserializeObject<User>(jsonUser);
-        }
-
         public static string EncodeGroupPacket(Group group)
         {
-            return "Group:" + JsonConvert.SerializeObject(group);
+            return JsonConvert.SerializeObject(group, new UserInGroupConverter());
+        }
+
+        public static string EncodeGroupAddPacket(Group group)
+        {
+            return "Group:" + "Add:" + JsonConvert.SerializeObject(group);
         }
 
         public static Group? DecodeGroupPacket(string jsonGroup)
@@ -41,7 +53,7 @@ namespace DataClasses
 
         public static string EncodeMessagePacket(Message message)
         {
-            return "Message:" + JsonConvert.SerializeObject(message);
+            return JsonConvert.SerializeObject(message);
         }
 
         public static Message? DecodeMessagePacket(string jsonMessage)

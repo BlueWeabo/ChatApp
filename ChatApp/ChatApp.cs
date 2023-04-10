@@ -51,8 +51,6 @@ namespace ChatApp
                 byte[] messageBytes = Encoding.UTF8.GetBytes(messageToSend.Text);
                 _ = await App.client.SendAsync(messageBytes, SocketFlags.None);
 
-
-                // Receive ack.
                 byte[] buffer = new byte[1_024];
                 int received = await App.client.ReceiveAsync(buffer, SocketFlags.None);
                 string response = Encoding.UTF8.GetString(buffer, 0, received);
@@ -65,9 +63,41 @@ namespace ChatApp
             App.login.Close();
         }
 
-        private void AddGroupButton_Click(object sender, EventArgs e)
+        private async void AddGroupButton_Click(object sender, EventArgs e)
         {
+            AddFriend friendForm = new();
+            if (DialogResult.OK == friendForm.ShowDialog())
+            {
+                while (true)
+                {
+                    Group newGroup = new();
+                    newGroup.Members.Add(user);
+                    User friendTemp = new();
+                    friendTemp.Username = friendForm.FriendName.Text;
+                    string friendMessage = PacketHandler.EncodeUserGetPacket(friendTemp);
+                    byte[] friendBytes = Encoding.UTF8.GetBytes(friendMessage);
+                    _ = await App.client.SendAsync(friendBytes, SocketFlags.None);
+                    byte[] friendBuffer = new byte[1_024];
+                    int friendRecieved = await App.client.ReceiveAsync(friendBuffer, SocketFlags.None);
+                    string friendResponse = Encoding.UTF8.GetString(friendBuffer, 0, friendRecieved);
+                    User friend = PacketHandler.DecodeUserPacket(friendResponse);
+                    newGroup.Members.Add(friend);
+                    newGroup.GroupName = user.Username + " Group";
+                    string groupMessage = PacketHandler.EncodeGroupAddPacket(newGroup);
+                    byte[] groupBytes = Encoding.UTF8.GetBytes(groupMessage);
+                    _ = await App.client.SendAsync(groupBytes, SocketFlags.None);
 
+                    byte[] groupBuffer = new byte[1_024];
+                    int groupRecieved = await App.client.ReceiveAsync(groupBuffer, SocketFlags.None);
+                    string groupResponse = Encoding.UTF8.GetString(groupBuffer, 0, groupRecieved);
+                    Group group = PacketHandler.DecodeGroupPacket(groupResponse);
+                    user.Groups.Add(group);
+                    selectedGroup = group;
+                    LoadGroupMessages();
+                    break;
+                }
+                LoadUserGroups();
+            }
         }
 
         private void SelectGroup(object? sender, EventArgs? e)

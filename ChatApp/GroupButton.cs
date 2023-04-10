@@ -14,7 +14,7 @@ namespace ChatApp
         public void SetGroup(Group group)
         {
             internalGroup = group;
-            Text = group.Name;
+            Text = group.GroupName;
         }
 
         public Group? GetGroup()

@@ -51,6 +51,7 @@ class Server
 
     static void processPacket(string message, Socket handler)
     {
+        Console.WriteLine(message);
         string messageType = message.Split(':')[0];
         message = message[(message.IndexOf(':') + 1)..];
         switch (messageType)
@@ -65,7 +66,10 @@ class Server
                 processMessage(message);
                 break;
             case "Group":
-                processGroup(message);
+                processGroup(message, handler);
+                break;
+            case "User":
+                ProcessUser(message, handler);
                 break;
             default:
                 Console.WriteLine("Unknown message type");
@@ -76,7 +80,7 @@ class Server
 
     static async void processLogging(string message, Socket handler)
     {
-        User? user = PacketHandler.DecodeLoginPacket(message);
+        User? user = PacketHandler.DecodeUserPacket(message);
         if (user == null)
         {
             
@@ -104,7 +108,7 @@ class Server
 
         while (true)
         {
-            string information = PacketHandler.EncodeLoginPacket(userReturned);
+            string information = PacketHandler.EncodeUserPacket(userReturned);
             byte[] echoBytes = Encoding.UTF8.GetBytes(information);
             _ = await handler.SendAsync(echoBytes, 0);
             break;
@@ -113,7 +117,7 @@ class Server
 
     static async void processRegister(string message, Socket handler)
     {
-        User? user = PacketHandler.DecodeRegisterPacket(message);
+        User? user = PacketHandler.DecodeUserPacket(message);
         if (user == null)
         {
             SendIgnored(handler);
@@ -143,21 +147,93 @@ class Server
 
         while (true)
         {
-            string information = PacketHandler.EncodeRegisterPacket(userReturned);
+            string information = PacketHandler.EncodeUserPacket(userReturned);
             byte[] echoBytes = Encoding.UTF8.GetBytes(information);
             _ = await handler.SendAsync(echoBytes, 0);
             break;
         }
     }
 
-    static async void processGroup(string message)
+    static async void processGroup(string message, Socket handler)
     {
+        string messageType = message.Split(':')[0];
+        message = message[(message.IndexOf(':') + 1)..];
+        Group? group = PacketHandler.DecodeGroupPacket(message);
+        if (group == null)
+        {
+            SendIgnored(handler);
+            return;
+        } 
 
+        switch (messageType)
+        {
+            case "Add":
+                
+                if (group.Members.Count < 2)
+                {
+                    SendIgnored(handler);
+                    return;
+                }
+                Group newGroup = new();
+                newGroup.GroupName = group.GroupName;
+                newGroup = context.Groups.Add(newGroup);
+                _ = await context.SaveChangesAsync();
+                foreach (User usr in group.Members)
+                {
+                    User temp = context.Users.Find(usr.Id);
+                    newGroup.Members.Add(temp);
+                }
+                _ = await context.SaveChangesAsync();
+
+                while (true)
+                {
+                    string information = PacketHandler.EncodeGroupPacket(newGroup);
+                    byte[] echoBytes = Encoding.UTF8.GetBytes(information);
+                    _ = await handler.SendAsync(echoBytes, 0);
+                    break;
+                }
+                break;
+        }
     }
 
     static async void processMessage(string message)
     {
+        string messageType = message.Split(':')[0];
+        message = message[(message.IndexOf(':') + 1)..];
+    }
 
+    static async void ProcessUser(string message, Socket handler)
+    {
+        string messageType = message.Split(':')[0];
+        message = message[(message.IndexOf(':') + 1)..];
+        User? user = PacketHandler.DecodeUserPacket(message);
+        if (user == null)
+        {
+            SendIgnored(handler);
+            return;
+        }
+
+        switch (messageType)
+        {
+            case "Get":
+            {
+                DbSqlQuery<User> userQuery = context.Users.SqlQuery("Select * from chatapp.users where Username = @username", new MySqlParameter("@username", user.Username));
+                User userReturned = null;
+                foreach (User usr in userQuery)
+                {
+                    userReturned = usr;
+                }
+
+                while (true)
+                {
+                    string information = PacketHandler.EncodeUserPacket(userReturned);
+                    byte[] echoBytes = Encoding.UTF8.GetBytes(information);
+                    _ = await handler.SendAsync(echoBytes, 0);
+                    break;
+                }
+            }
+            break;
+        }
     }
 
     static async void SendIgnored(Socket handler)

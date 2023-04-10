@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace DataClasses
 {
@@ -36,13 +37,38 @@ namespace DataClasses
         public static string Sha256(string randomString)
         {
             SHA256 crypt = SHA256.Create();
-            var hash = new System.Text.StringBuilder();
+            var hash = new StringBuilder();
             byte[] crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(randomString));
             foreach (byte theByte in crypto)
             {
                 hash.Append(theByte.ToString("x2"));
             }
             return hash.ToString();
+        }
+
+        public class UserInGroupConverter : JsonConverter<User>
+        {
+            public override User? ReadJson(JsonReader reader, Type objectType, User? existingValue, bool hasExistingValue, JsonSerializer serializer)
+            {
+                return serializer.Deserialize<User>(reader);
+            }
+
+            public override void WriteJson(JsonWriter writer, User? value, JsonSerializer serializer)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("Id");
+                writer.WriteValue(value.Id);
+                writer.WritePropertyName("Username");
+                writer.WriteValue(value.Username);
+                writer.WritePropertyName("Password");
+                writer.WriteNull();
+                writer.WritePropertyName("IpAddress");
+                writer.WriteNull();
+                writer.WritePropertyName("Groups");
+                writer.WriteStartArray();
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            }
         }
     }
 }
