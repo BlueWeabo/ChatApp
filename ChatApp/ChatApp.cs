@@ -4,6 +4,7 @@ using System.Text;
 using System.ComponentModel;
 using DataClasses;
 using System.Runtime.CompilerServices;
+using Message = DataClasses.Message;
 
 namespace ChatApp
 {
@@ -35,9 +36,9 @@ namespace ChatApp
                 GroupButton button = new();
                 button.SetGroup(user.Groups.ElementAt(i));
                 button.Width = GroupsList.ClientSize.Width;
-                button.Height = 20;
-                button.Location = new(GroupsList.Location.X, 20 * i + GroupsList.Location.Y);
-                button.Click += new EventHandler(SelectGroup);
+                button.Height = 40;
+                button.Location = new(GroupsList.Location.X, 40 * i + GroupsList.Location.Y);
+                button.Click += SelectGroup;
                 GroupsList.Controls.Add(button);
             }
             ResumeLayout(false);
@@ -48,12 +49,21 @@ namespace ChatApp
         {
             while (true)
             {
-                byte[] messageBytes = Encoding.UTF8.GetBytes(messageToSend.Text);
-                _ = await App.client.SendAsync(messageBytes, SocketFlags.None);
+                string messageGroup = PacketHandler.EncodeMessageSendPacket(selectedGroup);
+                Message mes = new();
+                mes.Sender = user;
+                mes.Text = messageToSend.Text;
+                string message = PacketHandler.EncodeMessagePacket(mes);
+                byte[] messageGroupBytes = Encoding.UTF8.GetBytes(messageGroup + "+" + message);
+                _ = await App.client.SendAsync(messageGroupBytes, SocketFlags.None);
 
                 byte[] buffer = new byte[1_024];
                 int received = await App.client.ReceiveAsync(buffer, SocketFlags.None);
                 string response = Encoding.UTF8.GetString(buffer, 0, received);
+                Group? group = PacketHandler.DecodeGroupPacket(response);
+                selectedGroup.Members = group.Members;
+                selectedGroup.Messages = group.Messages;
+                LoadGroupMessages();
                 break;
             }
         }
@@ -100,7 +110,7 @@ namespace ChatApp
             }
         }
 
-        private void SelectGroup(object? sender, EventArgs? e)
+        private async void SelectGroup(object? sender, EventArgs? e)
         {
             if (sender is not GroupButton)
             {
@@ -108,9 +118,19 @@ namespace ChatApp
             }
 
             GroupButton btn = (GroupButton)sender;
+            while (true)
+            {
+                byte[] messageGroupBytes = Encoding.UTF8.GetBytes(PacketHandler.EncodeGroupGetPacket(btn.GetGroup()));
+                _ = await App.client.SendAsync(messageGroupBytes, SocketFlags.None);
 
-            selectedGroup = btn.GetGroup();
-            LoadGroupMessages();
+                byte[] groupBuffer = new byte[1_024];
+                int groupRecieved = await App.client.ReceiveAsync(groupBuffer, SocketFlags.None);
+                string groupResponse = Encoding.UTF8.GetString(groupBuffer, 0, groupRecieved);
+                Group group = PacketHandler.DecodeGroupPacket(groupResponse);
+                selectedGroup = group;
+                break;
+            }
+            LoadGroup();
         }
 
         private void LoadGroupMessages()
@@ -119,6 +139,27 @@ namespace ChatApp
             {
                 return;
             }
+
+            SuspendLayout();
+            MessageList.Controls.Clear();
+            for (int i = 0; i < selectedGroup.Messages.Count; i++)
+            {
+                Label label = new();
+                label.Width = MessageList.ClientSize.Width;
+                label.Height = 20;
+                label.Location = new(MessageList.Location.X, 30 * i);
+                MessageList.Controls.Add(label);
+            }
+            ResumeLayout(false);
+        }
+
+        private void LoadGroup()
+        {
+            if (selectedGroup == null)
+            {
+                return;
+            }
+            LoadGroupMessages();
         }
     }
 }

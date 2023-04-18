@@ -11,7 +11,7 @@ namespace DataClasses
     public class Group
     {
         public int Id { get; set; }
-        [Column("Username", TypeName = "varchar")]
+        [Column("GroupName", TypeName = "varchar")]
         public string GroupName { get; set; }
 
         public ICollection<User> Members { get; set; }

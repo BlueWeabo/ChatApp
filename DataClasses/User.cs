@@ -46,7 +46,7 @@ namespace DataClasses
             return hash.ToString();
         }
 
-        public class UserInGroupConverter : JsonConverter<User>
+        public class UserImportantInfo : JsonConverter<User>
         {
             public override User? ReadJson(JsonReader reader, Type objectType, User? existingValue, bool hasExistingValue, JsonSerializer serializer)
             {

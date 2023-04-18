@@ -38,12 +38,17 @@ namespace DataClasses
 
         public static string EncodeGroupPacket(Group group)
         {
-            return JsonConvert.SerializeObject(group, new UserInGroupConverter());
+            return JsonConvert.SerializeObject(group, new UserImportantInfo());
         }
 
         public static string EncodeGroupAddPacket(Group group)
         {
-            return "Group:" + "Add:" + JsonConvert.SerializeObject(group);
+            return "Group:" + "Add:" + JsonConvert.SerializeObject(group, new UserImportantInfo());
+        }
+
+        public static string EncodeGroupGetPacket(Group group)
+        {
+            return "Group:" + "Get:" + JsonConvert.SerializeObject(group, new UserImportantInfo());
         }
 
         public static Group? DecodeGroupPacket(string jsonGroup)
@@ -51,9 +56,14 @@ namespace DataClasses
             return JsonConvert.DeserializeObject<Group>(jsonGroup);
         }
 
+        public static string EncodeMessageSendPacket(Group group)
+        {
+            return "Message:" + "Send:" + JsonConvert.SerializeObject(group, new UserImportantInfo());
+        }
+
         public static string EncodeMessagePacket(Message message)
         {
-            return JsonConvert.SerializeObject(message);
+            return JsonConvert.SerializeObject(message, new UserImportantInfo());
         }
 
         public static Message? DecodeMessagePacket(string jsonMessage)

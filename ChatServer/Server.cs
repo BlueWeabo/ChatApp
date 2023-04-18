@@ -63,7 +63,7 @@ class Server
                 processRegister(message, handler);
                 break;
             case "Message":
-                processMessage(message);
+                processMessage(message, handler);
                 break;
             case "Group":
                 processGroup(message, handler);
@@ -106,9 +106,13 @@ class Server
             return;
         }
 
+        userReturned = context.Users.Include("Groups").First(u => u.Id == userReturned.Id);
+        
+
         while (true)
         {
             string information = PacketHandler.EncodeUserPacket(userReturned);
+            Console.WriteLine(information);
             byte[] echoBytes = Encoding.UTF8.GetBytes(information);
             _ = await handler.SendAsync(echoBytes, 0);
             break;
@@ -193,13 +197,61 @@ class Server
                     break;
                 }
                 break;
+            case "Get":
+                Group? groupToGive = PacketHandler.DecodeGroupPacket(message);
+                if (groupToGive == null)
+                {
+                    SendIgnored(handler);
+                    return;
+                }
+                groupToGive = context.Groups.Include("Messages").Include("Members").First(g => g.Id == groupToGive.Id);
+                while (true)
+                {
+                    string information = PacketHandler.EncodeGroupPacket(groupToGive);
+                    Console.WriteLine(information);
+                    byte[] echoBytes = Encoding.UTF8.GetBytes(information);
+                    _ = await handler.SendAsync(echoBytes, 0);
+                    break;
+                }
+                break;
         }
     }
 
-    static async void processMessage(string message)
+    static async void processMessage(string message, Socket handler)
     {
         string messageType = message.Split(':')[0];
         message = message[(message.IndexOf(':') + 1)..];
+        Group? group = PacketHandler.DecodeGroupPacket(message.Split('+')[0]);
+        if (group == null)
+        {
+            SendIgnored(handler);
+            return;
+        }
+        group = context.Groups.Find(group.Id);
+        switch (messageType)
+        {
+            case "Send:":
+                while (true)
+                {
+                    string response = message.Split('+')[1];
+                    Console.WriteLine(response + "BS");
+                    Message? mes = PacketHandler.DecodeMessagePacket(response);
+                    if (mes == null)
+                    {
+                        SendIgnored(handler);
+                        break;
+                    }
+                    mes.Sender = context.Users.Find(mes.Sender.Id);
+                    mes = context.Messages.Add(mes);
+                    group.Messages.Add(mes);
+                    _ = await context.SaveChangesAsync();
+                    string information = PacketHandler.EncodeGroupPacket(group);
+                    byte[] echoBytes = Encoding.UTF8.GetBytes(information);
+                    _ = await handler.SendAsync(echoBytes, 0);
+                    break;
+                }
+                break;
+        }
     }
 
     static async void ProcessUser(string message, Socket handler)
@@ -238,6 +290,7 @@ class Server
 
     static async void SendIgnored(Socket handler)
     {
+        Console.WriteLine("Cancelled");
         byte[] echoBytes = Encoding.UTF8.GetBytes("no");
         _ = await handler.SendAsync(echoBytes, 0);
     }
